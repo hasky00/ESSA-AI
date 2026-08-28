@@ -2,7 +2,7 @@
 
 **Essence — Substrate — State — Architecture**
 
-ESSA-AI is an open research project exploring a non-LLM-centered architecture for artificial intelligence.
+ESSA-AI is an open research project and executable prototype for a non-LLM-centered architecture for artificial intelligence.
 
 The core hypothesis is that intelligence should not be fundamentally defined as next-token prediction. ESSA instead treats **entities, relations, states, transformations, self-modeling, and substrate awareness** as first-class computational objects.
 
@@ -76,6 +76,35 @@ Build the smallest working system that can:
 6. observe consequences;
 7. revise its world and self models;
 8. expose language as an interface rather than the fundamental state representation.
+
+## Executable SELF prototype
+
+The repository now includes a dependency-light Python implementation of a minimal computational `SELF`.
+
+```python
+from essa import SelfModel, RuntimeSubstrateInspector
+
+self_model = SelfModel()
+self_model.inspect_substrate(RuntimeSubstrateInspector())
+prediction = self_model.predict("transition_state")
+self_model.act("transition_state", {"status": "completed"}, prediction=prediction)
+self_model.save("self.json")
+```
+
+The implementation deliberately keeps the core symbolic and state-transition based:
+
+- `Identity` and `Essence` are persistent.
+- `SubstrateSnapshot`, `state`, `capabilities`, and `potential` are mutable.
+- `SelfModel.observe_self()` and `SelfModel.observe_world()` keep the self/world boundary explicit.
+- `SelfModel.inspect_substrate()` updates substrate-dependent capabilities and potential while preserving identity.
+- `SelfModel.predict()`, `SelfModel.act()`, and `SelfModel.transition_state()` record predictions, observations, consequences, and history.
+- JSON persistence allows the model to be saved and restored without introducing a database or LLM dependency.
+
+Run the executable tests with:
+
+```bash
+python3 -m unittest discover -s tests
+```
 
 ## Research status
 
