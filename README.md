@@ -117,6 +117,17 @@ the agent distinguishes self-observations from world-observations, inspects its
 runtime substrate, predicts a state transition, acts, and records whether the
 prediction was confirmed.
 
+## Landing page voice
+
+The GitHub Pages landing page can play a generated ESSA introduction from
+`docs/assets/essa-voice.mp3`. Generate it locally with an OpenAI API key:
+
+```bash
+OPENAI_API_KEY=... python3 scripts/generate_essa_voice.py
+```
+
+Do not place an API key in `docs/index.html` or any browser-side file.
+
 ## Research status
 
 **Experimental / hypothesis-driven.**

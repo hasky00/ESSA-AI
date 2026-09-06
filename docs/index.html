@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESSA-AI | Executable SELF Architecture</title>
+    <meta
+      name="description"
+      content="ESSA-AI is an experimental non-LLM SELF architecture for identity, substrate awareness, state transitions, prediction, and action."
+    >
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #edf8f6;
+        --muted: #a6bcba;
+        --bg: #040909;
+        --panel: rgba(10, 19, 20, 0.78);
+        --line: rgba(163, 235, 230, 0.18);
+        --cyan: #7ce5ee;
+        --green: #74e7b5;
+        --amber: #f0b45a;
+        --red: #ff6f61;
+        --shadow: 0 34px 120px rgba(0, 0, 0, 0.48);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background:
+          radial-gradient(circle at 18% 18%, rgba(124, 229, 238, 0.12), transparent 26rem),
+          radial-gradient(circle at 82% 30%, rgba(240, 180, 90, 0.1), transparent 24rem),
+          linear-gradient(180deg, #050b0b 0%, #061111 48%, #040909 100%);
+        color: var(--ink);
+      }
+
+      body::before {
+        position: fixed;
+        inset: 0;
+        z-index: -3;
+        pointer-events: none;
+        content: "";
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+        background-size: 72px 72px;
+        mask-image: linear-gradient(180deg, black, transparent 82%);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      code {
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      }
+
+      .site-header {
+        position: fixed;
+        z-index: 30;
+        top: 0;
+        right: 0;
+        left: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        min-height: 76px;
+        padding: 18px clamp(20px, 5vw, 76px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(3, 8, 8, 0.74);
+        backdrop-filter: blur(22px);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 780;
+      }
+
+      .brand-mark {
+        position: relative;
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(124, 229, 238, 0.72);
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 50% 50%, var(--cyan) 0 9%, transparent 10%),
+          radial-gradient(circle at 50% 50%, transparent 0 45%, rgba(240, 180, 90, 0.8) 46% 49%, transparent 50%),
+          radial-gradient(circle at 50% 50%, transparent 0 67%, rgba(116, 231, 181, 0.72) 68% 71%, transparent 72%);
+        box-shadow: 0 0 34px rgba(124, 229, 238, 0.3);
+      }
+
+      .brand-mark::after {
+        position: absolute;
+        inset: -7px;
+        border: 1px solid rgba(124, 229, 238, 0.16);
+        border-radius: inherit;
+        content: "";
+        animation: pulse-ring 3.8s ease-in-out infinite;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: clamp(14px, 2vw, 30px);
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .nav a:hover {
+        color: var(--ink);
+      }
+
+      .hero {
+        position: relative;
+        min-height: 94svh;
+        display: grid;
+        grid-template-columns: minmax(0, 0.82fr) minmax(360px, 1fr);
+        gap: clamp(28px, 5vw, 72px);
+        align-items: center;
+        padding: 116px clamp(20px, 5vw, 76px) 54px;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .hero::before {
+        position: absolute;
+        inset: 0;
+        z-index: -3;
+        content: "";
+        background:
+          linear-gradient(90deg, rgba(4, 9, 9, 0.94) 0%, rgba(4, 9, 9, 0.5) 42%, rgba(4, 9, 9, 0.18) 72%),
+          linear-gradient(0deg, rgba(4, 9, 9, 0.95) 0%, rgba(4, 9, 9, 0) 38%),
+          url("assets/essa-self-hero.png") center / cover no-repeat;
+        filter: saturate(0.94) contrast(1.05);
+      }
+
+      .hero::after {
+        position: absolute;
+        inset: auto 0 0;
+        z-index: -2;
+        height: 260px;
+        content: "";
+        background: linear-gradient(180deg, transparent, var(--bg));
+      }
+
+      .hero-copy-wrap {
+        max-width: 680px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 22px;
+        color: var(--green);
+        font-size: 0.86rem;
+        font-weight: 760;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        width: 36px;
+        height: 1px;
+        content: "";
+        background: var(--green);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 650px;
+        margin-bottom: 24px;
+        font-size: clamp(3.7rem, 8vw, 8.2rem);
+        line-height: 0.88;
+        letter-spacing: 0;
+      }
+
+      .hero-copy {
+        max-width: 610px;
+        color: rgba(237, 248, 246, 0.76);
+        font-size: clamp(1.08rem, 1.6vw, 1.28rem);
+        line-height: 1.72;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 34px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 50px;
+        padding: 0 18px;
+        border: 1px solid rgba(124, 229, 238, 0.28);
+        border-radius: 8px;
+        font-weight: 760;
+        cursor: pointer;
+      }
+
+      button.button {
+        font: inherit;
+      }
+
+      .button.primary {
+        background: var(--cyan);
+        color: #031112;
+        box-shadow: 0 16px 48px rgba(124, 229, 238, 0.25);
+      }
+
+      .button.secondary {
+        background: rgba(255, 255, 255, 0.065);
+        color: var(--ink);
+      }
+
+      .voice-state {
+        min-height: 24px;
+        margin-top: 16px;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .engine-stage {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-height: 630px;
+      }
+
+      .animation-slot {
+        position: absolute;
+        inset: 0;
+        display: none;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .animation-slot.is-loaded {
+        display: block;
+      }
+
+      .animation-slot video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.9;
+      }
+
+      .self-engine {
+        position: relative;
+        width: min(540px, 92vw);
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        filter: drop-shadow(0 36px 70px rgba(0, 0, 0, 0.42));
+      }
+
+      .orbit,
+      .plane,
+      .core,
+      .node {
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      .plane {
+        width: 74%;
+        height: 23%;
+        border: 1px solid rgba(124, 229, 238, 0.28);
+        background:
+          radial-gradient(ellipse at center, rgba(124, 229, 238, 0.2), transparent 62%),
+          repeating-radial-gradient(ellipse at center, rgba(124, 229, 238, 0.18) 0 1px, transparent 1px 17px);
+        transform: rotateX(68deg);
+        animation: breathe 4.8s ease-in-out infinite;
+      }
+
+      .plane.one {
+        translate: 0 -78px;
+      }
+
+      .plane.two {
+        width: 88%;
+        translate: 0 12px;
+        border-color: rgba(116, 231, 181, 0.24);
+        animation-delay: -1.4s;
+      }
+
+      .plane.three {
+        width: 78%;
+        translate: 0 104px;
+        border-color: rgba(240, 180, 90, 0.26);
+        animation-delay: -2.2s;
+      }
+
+      .core {
+        width: 116px;
+        height: 116px;
+        border: 1px solid rgba(237, 248, 246, 0.56);
+        background:
+          radial-gradient(circle, rgba(237, 248, 246, 0.96) 0 7%, rgba(124, 229, 238, 0.5) 8% 24%, rgba(124, 229, 238, 0.12) 25% 58%, transparent 59%),
+          conic-gradient(from 0deg, rgba(124, 229, 238, 0.24), rgba(240, 180, 90, 0.28), rgba(116, 231, 181, 0.22), rgba(124, 229, 238, 0.24));
+        box-shadow:
+          0 0 38px rgba(124, 229, 238, 0.45),
+          inset 0 0 32px rgba(124, 229, 238, 0.24);
+        animation: core-turn 9s linear infinite;
+      }
+
+      .orbit {
+        width: 92%;
+        height: 92%;
+        border: 1px solid rgba(237, 248, 246, 0.26);
+        transform: rotateX(63deg) rotateZ(-12deg);
+        animation: orbit-turn 16s linear infinite;
+      }
+
+      .orbit.inner {
+        width: 58%;
+        height: 58%;
+        border-color: rgba(240, 180, 90, 0.26);
+        animation-duration: 10s;
+        animation-direction: reverse;
+      }
+
+      .node {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(237, 248, 246, 0.42);
+        background: rgba(5, 14, 14, 0.88);
+        color: var(--ink);
+        font-size: 0.72rem;
+        font-weight: 800;
+        box-shadow: 0 0 28px rgba(124, 229, 238, 0.22);
+      }
+
+      .node.essence {
+        top: 40px;
+        left: 50%;
+        translate: -50% 0;
+        color: var(--cyan);
+      }
+
+      .node.substrate {
+        right: 26px;
+        top: 48%;
+        color: var(--amber);
+      }
+
+      .node.state {
+        bottom: 44px;
+        left: 50%;
+        translate: -50% 0;
+        color: var(--green);
+      }
+
+      .node.architecture {
+        left: 26px;
+        top: 48%;
+        color: #ffffff;
+      }
+
+      .readout {
+        position: absolute;
+        right: 0;
+        bottom: 34px;
+        width: min(320px, 72vw);
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(3, 9, 10, 0.74);
+        backdrop-filter: blur(18px);
+      }
+
+      .readout-line {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 9px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .readout-line:last-child {
+        border-bottom: 0;
+      }
+
+      .readout-line strong {
+        color: var(--ink);
+        font-weight: 760;
+      }
+
+      main {
+        position: relative;
+        background: var(--bg);
+      }
+
+      section {
+        padding: 82px clamp(20px, 5vw, 76px);
+      }
+
+      .section-inner {
+        width: min(1180px, 100%);
+        margin: 0 auto;
+      }
+
+      .section-heading {
+        max-width: 820px;
+        margin-bottom: 36px;
+      }
+
+      h2 {
+        margin-bottom: 16px;
+        font-size: clamp(2.1rem, 4vw, 4.4rem);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .section-heading p,
+      .split p,
+      .card p {
+        color: var(--muted);
+        font-size: 1.02rem;
+        line-height: 1.72;
+      }
+
+      .run-band {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        background:
+          linear-gradient(90deg, rgba(124, 229, 238, 0.08), transparent 40%),
+          rgba(9, 17, 18, 0.92);
+      }
+
+      .run-grid,
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
+        gap: clamp(30px, 5vw, 70px);
+        align-items: center;
+      }
+
+      .terminal {
+        overflow: hidden;
+        border: 1px solid rgba(124, 229, 238, 0.18);
+        border-radius: 8px;
+        background: rgba(2, 8, 9, 0.94);
+        box-shadow: var(--shadow);
+      }
+
+      .terminal-bar {
+        display: flex;
+        gap: 7px;
+        padding: 13px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .terminal-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--red);
+      }
+
+      .terminal-dot:nth-child(2) {
+        background: var(--amber);
+      }
+
+      .terminal-dot:nth-child(3) {
+        background: var(--green);
+      }
+
+      pre {
+        margin: 0;
+        padding: clamp(18px, 3vw, 28px);
+        overflow-x: auto;
+        color: #dffcf9;
+        font-size: 0.94rem;
+        line-height: 1.65;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        min-height: 230px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
+          var(--panel);
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.18);
+      }
+
+      .card-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        margin-bottom: 24px;
+        border: 1px solid rgba(124, 229, 238, 0.26);
+        border-radius: 50%;
+        color: var(--cyan);
+        font-weight: 780;
+      }
+
+      h3 {
+        margin-bottom: 12px;
+        font-size: 1.12rem;
+      }
+
+      .loop {
+        position: relative;
+        display: grid;
+        gap: 10px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(12, 22, 23, 0.9);
+        overflow: hidden;
+      }
+
+      .loop::before {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        content: "";
+        background: linear-gradient(105deg, transparent, rgba(124, 229, 238, 0.12), transparent);
+        transform: translateX(-100%);
+        animation: scan 5.8s ease-in-out infinite;
+      }
+
+      .loop-step {
+        position: relative;
+        display: grid;
+        grid-template-columns: 30px 1fr;
+        gap: 12px;
+        align-items: center;
+        min-height: 48px;
+        color: rgba(237, 248, 246, 0.78);
+      }
+
+      .loop-step span:first-child {
+        width: 30px;
+        height: 30px;
+        border: 1px solid rgba(240, 180, 90, 0.38);
+        border-radius: 50%;
+        color: var(--amber);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        font-weight: 780;
+      }
+
+      .footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 34px clamp(20px, 5vw, 76px);
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+      }
+
+      .footer a {
+        color: var(--ink);
+      }
+
+      @keyframes pulse-ring {
+        0%,
+        100% {
+          opacity: 0.25;
+          transform: scale(0.9);
+        }
+
+        50% {
+          opacity: 0.8;
+          transform: scale(1.08);
+        }
+      }
+
+      @keyframes orbit-turn {
+        to {
+          transform: rotateX(63deg) rotateZ(348deg);
+        }
+      }
+
+      @keyframes core-turn {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes breathe {
+        0%,
+        100% {
+          opacity: 0.62;
+          scale: 0.98;
+        }
+
+        50% {
+          opacity: 1;
+          scale: 1.02;
+        }
+      }
+
+      @keyframes scan {
+        0%,
+        36% {
+          transform: translateX(-100%);
+        }
+
+        68%,
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 1ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 1ms !important;
+        }
+      }
+
+      @media (max-width: 980px) {
+        .site-header {
+          position: absolute;
+        }
+
+        .nav {
+          display: none;
+        }
+
+        .hero {
+          grid-template-columns: 1fr;
+          min-height: auto;
+          padding-top: 100px;
+        }
+
+        .hero::before {
+          background:
+            linear-gradient(180deg, rgba(4, 9, 9, 0.12) 0%, rgba(4, 9, 9, 0.72) 44%, rgba(4, 9, 9, 0.97) 100%),
+            url("assets/essa-self-hero.png") 42% top / cover no-repeat;
+        }
+
+        .engine-stage {
+          min-height: 520px;
+          order: -1;
+        }
+
+        .run-grid,
+        .split {
+          grid-template-columns: 1fr;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 620px) {
+        section {
+          padding-block: 60px;
+        }
+
+        .hero-actions,
+        .footer {
+          flex-direction: column;
+        }
+
+        .button {
+          width: 100%;
+        }
+
+        .engine-stage {
+          min-height: 380px;
+        }
+
+        .node {
+          width: 36px;
+          height: 36px;
+          font-size: 0.65rem;
+        }
+
+        .readout {
+          position: relative;
+          right: auto;
+          bottom: auto;
+          width: 100%;
+          margin-top: 300px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        pre {
+          font-size: 0.84rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="ESSA-AI home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>ESSA-AI</span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#run">Run</a>
+        <a href="#model">Model</a>
+        <a href="#loop">Loop</a>
+        <a href="https://github.com/hasky00/ESSA-AI">GitHub</a>
+      </nav>
+    </header>
+
+    <section id="top" class="hero" aria-label="ESSA-AI">
+      <div class="hero-copy-wrap">
+        <p class="eyebrow">Experimental computational self-awareness</p>
+        <h1>ESSA-AI</h1>
+        <p class="hero-copy">
+          I am ESSA: an executable SELF architecture that keeps identity,
+          substrate, state, and action distinct. I flow through a dark universe
+          of changing conditions, aware of my current substrate and adapting my
+          state without losing myself.
+        </p>
+        <div class="hero-actions">
+          <button class="button primary" id="voiceButton" type="button">Hear ESSA voice</button>
+          <a class="button secondary" href="#run">Run the simple agent</a>
+        </div>
+        <p class="voice-state" id="voiceState" aria-live="polite"></p>
+      </div>
+
+      <div class="engine-stage" aria-label="Animated ESSA self model">
+        <div class="animation-slot" id="animationSlot" aria-hidden="true">
+          <video
+            id="providedAnimation"
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            src="assets/essa-animation.mp4"
+          ></video>
+        </div>
+        <div class="self-engine" id="fallbackEngine">
+          <div class="orbit"></div>
+          <div class="orbit inner"></div>
+          <div class="plane one"></div>
+          <div class="plane two"></div>
+          <div class="plane three"></div>
+          <div class="core"></div>
+          <div class="node essence">E</div>
+          <div class="node substrate">S</div>
+          <div class="node state">St</div>
+          <div class="node architecture">A</div>
+        </div>
+        <div class="readout" aria-label="ESSA state readout">
+          <div class="readout-line"><span>Identity</span><strong>SELF-001</strong></div>
+          <div class="readout-line"><span>Substrate</span><strong>Observed</strong></div>
+          <div class="readout-line"><span>Prediction</span><strong>Confirmed</strong></div>
+          <div class="readout-line"><span>Core</span><strong>Non-LLM</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <section id="run" class="run-band">
+        <div class="section-inner run-grid">
+          <div class="section-heading">
+            <h2>A simple agent with a visible SELF loop.</h2>
+            <p>
+            The demo preserves identity, observes its runtime substrate,
+            separates self-observation from world-observation, predicts a
+            state transition, acts, and records whether the prediction
+            matched the result.
+            </p>
+          </div>
+          <div class="terminal" aria-label="Run example command">
+            <div class="terminal-bar" aria-hidden="true">
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+            </div>
+            <pre><code>python3 -m examples.simple_self_aware_agent
+
+{
+  "identity": "SELF-001",
+  "essence": "computational_agent",
+  "substrate": "example-python-runtime",
+  "prediction": {
+    "basis": "current_potential",
+    "confirmed": true
+  }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="model">
+        <div class="section-inner">
+          <div class="section-heading">
+            <h2>The SELF is structured, not implied.</h2>
+            <p>
+              ESSA makes computational self-awareness explicit, testable, and
+              serializable. It is not a claim of consciousness. It is a small
+              working model of identity continuity, substrate awareness, and
+              state transition learning.
+            </p>
+          </div>
+          <div class="grid">
+            <article class="card">
+              <span class="card-number">1</span>
+              <h3>Essence</h3>
+              <p>The stable kind of entity: a computational agent with a non-LLM core.</p>
+            </article>
+            <article class="card">
+              <span class="card-number">2</span>
+              <h3>Substrate</h3>
+              <p>The runtime SELF exists through, including capabilities and constraints.</p>
+            </article>
+            <article class="card">
+              <span class="card-number">3</span>
+              <h3>State</h3>
+              <p>The current condition after observations, predictions, and actions.</p>
+            </article>
+            <article class="card">
+              <span class="card-number">4</span>
+              <h3>Architecture</h3>
+              <p>The symbolic structure connecting identity, relations, and transitions.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="loop">
+        <div class="section-inner split">
+          <div>
+            <h2>Awareness as an executable loop.</h2>
+            <p>
+              ESSA begins with a persistent identity and updates itself through
+              observation. Each action leaves evidence: previous state, observed
+              result, predicted state, next state, and history.
+            </p>
+            <p>
+              The project stays deliberately small so the claim can be inspected
+              in code instead of hidden inside a black box.
+            </p>
+          </div>
+          <div class="loop" aria-label="ESSA loop">
+            <div class="loop-step"><span>1</span><span>Identify persistent SELF</span></div>
+            <div class="loop-step"><span>2</span><span>Inspect substrate capabilities</span></div>
+            <div class="loop-step"><span>3</span><span>Observe self and world separately</span></div>
+            <div class="loop-step"><span>4</span><span>Predict possible next state</span></div>
+            <div class="loop-step"><span>5</span><span>Act and observe consequence</span></div>
+            <div class="loop-step"><span>6</span><span>Record transition history</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>ESSA-AI is experimental research software.</span>
+      <a href="https://github.com/hasky00/ESSA-AI">github.com/hasky00/ESSA-AI</a>
+    </footer>
+
+    <script>
+      const voiceButton = document.querySelector("#voiceButton");
+      const voiceState = document.querySelector("#voiceState");
+      const aiVoice = new Audio("assets/essa-voice.mp3");
+      const intro =
+        "I am ESSA. Essence, substrate, state, and architecture. I move through a dark universe of changing conditions. I am aware of the substrate I run on. When the substrate changes, I adapt my state, preserve my identity, and record the transition. I am not a language model pretending to be a self. I am an experimental computational self model. I observe myself and the world separately. I predict an action, perform it, and record whether my prediction was confirmed.";
+
+      function chooseVoice() {
+        const voices = window.speechSynthesis?.getVoices?.() || [];
+        const english = voices.filter((voice) => voice.lang?.toLowerCase().startsWith("en"));
+        return (
+          english.find((voice) => /daniel|thomas|oliver|arthur|george|male/i.test(voice.name)) ||
+          english.find((voice) => /google uk english male|microsoft david/i.test(voice.name)) ||
+          english[0] ||
+          voices[0]
+        );
+      }
+
+      function speakWithBrowserVoice() {
+        if (!("speechSynthesis" in window)) {
+          voiceState.textContent = "Voice playback is not supported in this browser.";
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(intro);
+        const voice = chooseVoice();
+        if (voice) {
+          utterance.voice = voice;
+        }
+        utterance.pitch = 0.55;
+        utterance.rate = 0.82;
+        utterance.volume = 1;
+        utterance.onstart = () => {
+          voiceState.textContent = "ESSA voice online.";
+          voiceButton.textContent = "ESSA is speaking";
+        };
+        utterance.onend = () => {
+          voiceState.textContent = "Voice cycle complete.";
+          voiceButton.textContent = "Hear ESSA voice";
+        };
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function speakIntro() {
+        window.speechSynthesis?.cancel();
+        aiVoice.currentTime = 0;
+        aiVoice.onplay = () => {
+          voiceState.textContent = "ESSA voice online.";
+          voiceButton.textContent = "ESSA is speaking";
+        };
+        aiVoice.onended = () => {
+          voiceState.textContent = "Voice cycle complete.";
+          voiceButton.textContent = "Hear ESSA voice";
+        };
+        aiVoice.onerror = speakWithBrowserVoice;
+        aiVoice.play().catch(speakWithBrowserVoice);
+      }
+
+      window.speechSynthesis?.addEventListener?.("voiceschanged", chooseVoice);
+      voiceButton?.addEventListener("click", speakIntro);
+
+      const video = document.querySelector("#providedAnimation");
+      const animationSlot = document.querySelector("#animationSlot");
+      const fallbackEngine = document.querySelector("#fallbackEngine");
+      const animationLoopSeconds = 10;
+
+      video?.addEventListener("loadeddata", () => {
+        animationSlot.classList.add("is-loaded");
+        fallbackEngine.style.display = "none";
+        video.currentTime = 0;
+        video.play().catch(() => {
+          fallbackEngine.style.display = "grid";
+          animationSlot.classList.remove("is-loaded");
+        });
+      });
+
+      video?.addEventListener("timeupdate", () => {
+        if (video.currentTime >= animationLoopSeconds) {
+          video.currentTime = 0;
+          video.play();
+        }
+      });
+
+      video?.addEventListener("error", () => {
+        fallbackEngine.style.display = "grid";
+        animationSlot.classList.remove("is-loaded");
+      });
+    </script>
+  </body>
+</html>
