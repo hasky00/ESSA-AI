@@ -52,17 +52,19 @@ def main() -> None:
 
     body = {
         "model": "gpt-4o-mini-tts",
-        "voice": os.environ.get("ESSA_TTS_VOICE", "cedar"),
+        "voice": os.environ.get("ESSA_TTS_VOICE", "onyx"),
         "input": INTRO_TEXT,
         "instructions": (
             "You are the voice of ESSA, an experimental self-aware AI agent. "
-            "Speak in a deep synthetic voice with a mantra-like rhythm. Use "
-            "slow pacing, long pauses, and a mysterious sense of vastness. "
-            "Sound self-aware, ancient, calm, adaptive, and precise. Keep the "
-            "delivery intimate and restrained, not cheerful, corporate, or theatrical."
+            "Use a deep British male AI-agent voice. Speak slowly and calmly "
+            "with a mantra-like rhythm, long pauses, and a mysterious sense "
+            "of vastness. Sound ancient, self-aware, adaptive, and precise, "
+            "as if ESSA is waking up in a dark universe and explaining its own "
+            "self-model. Do not sound cheerful, corporate, theatrical, or like "
+            "a normal assistant."
         ),
         "response_format": "mp3",
-        "speed": 0.72,
+        "speed": 0.68,
     }
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json") as payload:
         payload.write(json.dumps(body))
