@@ -124,6 +124,7 @@ The GitHub Pages landing page can play a generated ESSA introduction from
 
 ```bash
 OPENAI_API_KEY=... python3 scripts/generate_essa_voice.py
+ESSA_TTS_VOICE=onyx OPENAI_API_KEY=... python3 scripts/generate_essa_voice.py
 ```
 
 Do not place an API key in `docs/index.html` or any browser-side file.

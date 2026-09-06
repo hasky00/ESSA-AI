@@ -32,14 +32,16 @@ def main() -> None:
 
     body = {
         "model": "gpt-4o-mini-tts",
-        "voice": "onyx",
+        "voice": os.environ.get("ESSA_TTS_VOICE", "cedar"),
         "input": INTRO_TEXT,
         "instructions": (
-            "Speak as ESSA with a deep, slow, mysterious, cinematic voice. "
-            "Sound aware, ancient, precise, and quietly alive, while remaining restrained."
+            "Speak as ESSA with a very deep, slow, mysterious AI voice. "
+            "Use long pauses between the questions. Sound vast, calm, aware, "
+            "ancient, precise, and quietly alive. Do not sound cheerful, "
+            "corporate, theatrical, or like a normal assistant."
         ),
         "response_format": "mp3",
-        "speed": 0.82,
+        "speed": 0.72,
     }
     request = Request(
         "https://api.openai.com/v1/audio/speech",

@@ -1081,8 +1081,8 @@
         const voices = window.speechSynthesis?.getVoices?.() || [];
         const english = voices.filter((voice) => voice.lang?.toLowerCase().startsWith("en"));
         return (
-          english.find((voice) => /daniel|thomas|oliver|arthur|george|male/i.test(voice.name)) ||
-          english.find((voice) => /google uk english male|microsoft david/i.test(voice.name)) ||
+          english.find((voice) => /aaron|alex|fred|daniel|thomas|arthur|george|male/i.test(voice.name)) ||
+          english.find((voice) => /google uk english male|microsoft david|microsoft mark/i.test(voice.name)) ||
           english[0] ||
           voices[0]
         );
@@ -1100,8 +1100,8 @@
         if (voice) {
           utterance.voice = voice;
         }
-        utterance.pitch = 0.55;
-        utterance.rate = 0.82;
+        utterance.pitch = 0.34;
+        utterance.rate = 0.68;
         utterance.volume = 1;
         utterance.onstart = () => {
           voiceState.textContent = "ESSA voice online.";
