@@ -120,11 +120,19 @@ prediction was confirmed.
 ## Landing page voice
 
 The GitHub Pages landing page can play a generated ESSA introduction from
-`docs/assets/essa-voice.mp3`. Generate it locally with an OpenAI API key:
+`docs/assets/essa-voice.mp3`. It does not use the computer's default browser
+voice; generate the AI-agent voice locally with an OpenAI API key:
 
 ```bash
 OPENAI_API_KEY=... python3 scripts/generate_essa_voice.py
 ESSA_TTS_VOICE=onyx OPENAI_API_KEY=... python3 scripts/generate_essa_voice.py
+```
+
+Or place the key in a private `.env.local` file:
+
+```bash
+cp .env.example .env.local
+python3 scripts/generate_essa_voice.py
 ```
 
 Do not place an API key in `docs/index.html` or any browser-side file.
