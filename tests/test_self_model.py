@@ -63,8 +63,62 @@ class SelfModelTests(unittest.TestCase):
         self.assertEqual(transition.previous_state["current_substrate"], "symbolic-runtime")
         self.assertEqual(model.state["last_action"], "transition_state")
         self.assertIsNotNone(transition.prediction_id)
+        self.assertTrue(transition.prediction_confirmed)
         self.assertEqual(model.transitions[-1], transition)
         self.assertTrue(any(event.kind == "state_transition" for event in model.history))
+
+    def test_matching_prediction_is_confirmed(self):
+        model = SelfModel()
+        model.inspect_substrate(
+            StaticSubstrateInspector(
+                SubstrateSnapshot(
+                    id="symbolic-runtime",
+                    kind="runtime",
+                    capabilities=("symbolic_transition",),
+                )
+            )
+        )
+
+        prediction = model.predict("transition_state")
+        transition = model.act(
+            "transition_state",
+            {"status": "completed"},
+            prediction=prediction,
+        )
+
+        self.assertTrue(transition.prediction_confirmed)
+        self.assertTrue(model.state["state_transition_available"])
+        self.assertTrue(
+            any(
+                event.kind == "state_transition"
+                and event.value["prediction_confirmed"] is True
+                for event in model.history
+            )
+        )
+
+    def test_mismatched_prediction_is_recorded(self):
+        model = SelfModel()
+        prediction = model.predict("unexpected_action")
+        observation = model.observe_self(
+            {"last_action": "unexpected_action", "observed_result": "blocked"},
+            evidence="unit-test",
+        )
+
+        transition = model.transition_state(
+            "unexpected_action",
+            observation,
+            {"mode": "blocked", "last_action": "unexpected_action"},
+            prediction,
+        )
+
+        self.assertFalse(transition.prediction_confirmed)
+        self.assertTrue(
+            any(
+                event.kind == "state_transition"
+                and event.value["prediction_confirmed"] is False
+                for event in model.history
+            )
+        )
 
     def test_self_model_persists_to_json_and_loads_back(self):
         model = SelfModel()

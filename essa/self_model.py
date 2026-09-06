@@ -301,8 +301,14 @@ class SelfModel:
             {"last_action": action, "observed_result": observed_value},
             evidence="SelfModel.act",
         )
+        predicted_state = (
+            prediction.expected_state
+            if prediction and prediction.action == action
+            else {}
+        )
         next_state = {
             **self.state,
+            **predicted_state,
             "last_action": action,
             "last_result": observed_value,
         }
