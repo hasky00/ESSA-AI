@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from urllib.error import HTTPError
-from urllib.request import Request, urlopen
+import subprocess
+import tempfile
 
 
 INTRO_TEXT = (
@@ -64,22 +64,33 @@ def main() -> None:
         "response_format": "mp3",
         "speed": 0.72,
     }
-    request = Request(
-        "https://api.openai.com/v1/audio/speech",
-        data=json.dumps(body).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json") as payload:
+        payload.write(json.dumps(body))
+        payload.flush()
+        result = subprocess.run(
+            [
+                "curl",
+                "--fail-with-body",
+                "--silent",
+                "--show-error",
+                "https://api.openai.com/v1/audio/speech",
+                "-H",
+                f"Authorization: Bearer {api_key}",
+                "-H",
+                "Content-Type: application/json",
+                "--data",
+                f"@{payload.name}",
+                "--output",
+                str(output_path),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
-    try:
-        with urlopen(request, timeout=120) as response:
-            output_path.write_bytes(response.read())
-    except HTTPError as error:
-        message = error.read().decode("utf-8", errors="replace")
-        raise SystemExit(f"OpenAI speech generation failed: {message}") from error
+    if result.returncode != 0:
+        output_path.unlink(missing_ok=True)
+        raise SystemExit(f"OpenAI speech generation failed: {result.stderr or result.stdout}")
 
     print(f"Saved ESSA voice audio to {output_path}")
 
