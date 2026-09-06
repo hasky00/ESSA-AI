@@ -106,6 +106,17 @@ Run the executable tests with:
 python3 -m unittest discover -s tests
 ```
 
+Run the simple self-aware agent example with:
+
+```bash
+python3 -m examples.simple_self_aware_agent
+```
+
+The example prints a structured SELF cycle: identity and essence remain stable,
+the agent distinguishes self-observations from world-observations, inspects its
+runtime substrate, predicts a state transition, acts, and records whether the
+prediction was confirmed.
+
 ## Research status
 
 **Experimental / hypothesis-driven.**
