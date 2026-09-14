@@ -16,6 +16,7 @@ from essa.substrate import RuntimeSubstrateInspector
 from essa.symbolic import Entity, ESSAWorld, Relation
 from essa.hidden_lab import (
     ActionResult,
+    Belief,
     CycleReport,
     EnvironmentCondition,
     ESSAHiddenRuleLearner,
@@ -25,6 +26,7 @@ from essa.hidden_lab import (
 
 __all__ = [
     "ActionResult",
+    "Belief",
     "CycleReport",
     "Entity",
     "EnvironmentCondition",

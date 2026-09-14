@@ -126,17 +126,33 @@ python3 -m examples.hidden_rule_environment --forever --delay 1
 python3 -m examples.hidden_rule_environment --week
 ```
 
-That example repeats a compact ESSA loop over a changing environment whose true
-rules are not exposed to the agent:
+That example repeats an autonomous ESSA loop over a changing environment whose
+true rules are not exposed to the agent:
 
 ```text
-observe -> detect -> hypothesize -> predict -> act -> evaluate -> update -> next_task -> output_forward_rules
+observe -> detect -> hypothesize -> predict -> act -> evaluate -> update -> next_task
 ```
 
 The environment changes one cycle at a time. ESSA sees only visible conditions
-such as signal, drift, noise, energy, and uncertainty. It must infer which
-actions reduce uncertainty under which detected conditions, then carry those
-learned rules forward into the next cycle.
+such as signal, drift, noise, energy, and uncertainty. Hidden constraints can
+drift as turns pass. ESSA keeps a north star, a world model of beliefs with
+confidence scores, competing hypotheses, written predictions before action, and
+model updates after every surprise. There are no punishment penalties: every
+unexpected result becomes learning pressure and changes confidence.
+
+Each text cycle prints:
+
+```text
+OBSERVED
+SURPRISES
+HYPOTHESES
+CHOSEN ACTION + PREDICTION
+RESULT
+MODEL UPDATE
+NEXT TASK
+```
+
+Use `--json` when you want machine-readable cycle reports.
 
 ## Landing page voice
 

@@ -14,6 +14,7 @@ def main() -> None:
     parser.add_argument("--forever", action="store_true")
     parser.add_argument("--week", action="store_true")
     parser.add_argument("--delay", type=float, default=0.0)
+    parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 
     learner = ESSAHiddenRuleLearner()
@@ -26,7 +27,7 @@ def main() -> None:
 
     if args.forever:
         args.delay = args.delay or 1.0
-        run_stream(learner, args.delay, end_at)
+        run_stream(learner, args.delay, end_at, as_json=args.json)
         return
 
     reports = []
@@ -34,26 +35,36 @@ def main() -> None:
         report = learner.run_cycle()
         reports.append(report)
 
-    print(
-        json.dumps(
-            {
-                "cycles": [report.__dict__ for report in reports],
-                "forward_rules": learner.output_forward_rules(),
-            },
-            indent=2,
-            sort_keys=True,
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "cycles": [report.__dict__ for report in reports],
+                    "forward_rules": learner.output_forward_rules(),
+                    "world_model": learner.output_world_model(),
+                },
+                indent=2,
+                sort_keys=True,
+            )
         )
-    )
+    else:
+        print("\n\n".join(learner.cycle_text(report) for report in reports))
 
 
 def run_stream(
     learner: ESSAHiddenRuleLearner,
     delay: float,
     end_at: float | None,
+    *,
+    as_json: bool,
 ) -> None:
     while end_at is None or time.monotonic() < end_at:
         report = learner.run_cycle()
-        print(json.dumps(report.__dict__, sort_keys=True), flush=True)
+        if as_json:
+            print(json.dumps(report.__dict__, sort_keys=True), flush=True)
+        else:
+            print(learner.cycle_text(report), flush=True)
+            print("-" * 72, flush=True)
         if delay:
             time.sleep(delay)
     print(
