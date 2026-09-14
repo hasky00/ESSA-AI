@@ -123,6 +123,7 @@ Run the hidden-rule learning environment with:
 python3 -m examples.hidden_rule_environment
 python3 -m examples.hidden_rule_environment --cycles 20
 python3 -m examples.hidden_rule_environment --forever --delay 1
+python3 -m examples.hidden_rule_environment --week
 ```
 
 That example repeats a compact ESSA loop over a changing environment whose true
