@@ -117,6 +117,26 @@ the agent distinguishes self-observations from world-observations, inspects its
 runtime substrate, predicts a state transition, acts, and records whether the
 prediction was confirmed.
 
+Run the hidden-rule learning environment with:
+
+```bash
+python3 -m examples.hidden_rule_environment
+python3 -m examples.hidden_rule_environment --cycles 20
+python3 -m examples.hidden_rule_environment --forever --delay 1
+```
+
+That example repeats a compact ESSA loop over a changing environment whose true
+rules are not exposed to the agent:
+
+```text
+observe -> detect -> hypothesize -> predict -> act -> evaluate -> update -> next_task -> output_forward_rules
+```
+
+The environment changes one cycle at a time. ESSA sees only visible conditions
+such as signal, drift, noise, energy, and uncertainty. It must infer which
+actions reduce uncertainty under which detected conditions, then carry those
+learned rules forward into the next cycle.
+
 ## Landing page voice
 
 The GitHub Pages landing page can play a generated ESSA introduction from
