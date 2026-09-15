@@ -154,6 +154,24 @@ NEXT TASK
 
 Use `--json` when you want machine-readable cycle reports.
 
+Run the notification-energy core belief lab with:
+
+```bash
+python3 -m examples.notification_energy_lab --cycles 10
+python3 -m examples.notification_energy_lab --forever --delay 5
+```
+
+This lab starts from a real-world north star:
+
+```text
+Find out if phone notification drains your energy.
+```
+
+It tests beliefs about notifications, 5-minute attention checks, rest, walking,
+energy, productivity, and disturbance. ESSA can only see daily-style
+observations; the hidden rules decide whether each action creates clarity,
+partial information, or new data.
+
 ## Landing page voice
 
 The GitHub Pages landing page can play a generated ESSA introduction from

@@ -23,12 +23,20 @@ from essa.hidden_lab import (
     HiddenConstraintEnvironment,
     LearnedRule,
 )
+from essa.notification_lab import (
+    EnergyCondition,
+    EnergyResult,
+    NotificationEnergyEnvironment,
+    NotificationEnergyLearner,
+)
 
 __all__ = [
     "ActionResult",
     "Belief",
     "CycleReport",
     "Entity",
+    "EnergyCondition",
+    "EnergyResult",
     "EnvironmentCondition",
     "ESSAHiddenRuleLearner",
     "ESSAWorld",
@@ -37,6 +45,8 @@ __all__ = [
     "Identity",
     "HiddenConstraintEnvironment",
     "LearnedRule",
+    "NotificationEnergyEnvironment",
+    "NotificationEnergyLearner",
     "Observation",
     "Potential",
     "Prediction",
