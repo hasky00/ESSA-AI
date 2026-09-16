@@ -199,6 +199,20 @@ hypothesizes which action best serves the north star: securing the route,
 creating a safe learning space, providing meals and supplies, supporting
 teachers and trauma recovery, or repairing/enrolling when access is safe enough.
 
+EMMA also observes a lightweight food-distribution topology model. It represents
+food-system stress as barcode-like intervals across scales:
+
+```text
+local -> regional -> trade corridor -> global commodity market
+```
+
+Longer-lived intervals mean a hunger risk is not only local. For example, a
+local market access gap that persists up to the global commodity-market scale is
+treated as stronger evidence that hunger prevention needs distribution-network
+stabilization, not only one-day meals. This is intentionally dependency-light:
+it uses small Python dataclasses rather than heavy persistent-homology or graph
+libraries.
+
 ## Landing page voice
 
 The GitHub Pages landing page can play a generated ESSA introduction from

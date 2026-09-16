@@ -34,6 +34,8 @@ from essa.emma_case import (
     EmmaHaitiEducationEnvironment,
     EmmaHaitiEducationLearner,
     EmmaResult,
+    FoodNetworkTopology,
+    FoodTopologyInterval,
 )
 
 __all__ = [
@@ -47,6 +49,8 @@ __all__ = [
     "EmmaResult",
     "EnergyCondition",
     "EnergyResult",
+    "FoodNetworkTopology",
+    "FoodTopologyInterval",
     "EnvironmentCondition",
     "ESSAHiddenRuleLearner",
     "ESSAWorld",

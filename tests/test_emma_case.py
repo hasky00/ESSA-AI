@@ -1,6 +1,10 @@
 import unittest
 
-from essa.emma_case import EmmaHaitiEducationEnvironment, EmmaHaitiEducationLearner
+from essa.emma_case import (
+    EmmaHaitiEducationEnvironment,
+    EmmaHaitiEducationLearner,
+    FoodNetworkTopology,
+)
 
 
 class EmmaHaitiEducationCaseTests(unittest.TestCase):
@@ -21,10 +25,39 @@ class EmmaHaitiEducationCaseTests(unittest.TestCase):
         self.assertIn("hunger", report.observe)
         self.assertIn("route_risk", report.observe)
         self.assertIn("trauma_signs", report.observe)
+        self.assertIn("food_network_barcode", report.observe)
+        self.assertIn("food_topology_risk", report.observe)
         self.assertEqual(len(report.hypothesize), 3)
         self.assertIn("chosen_action", report.predict)
         self.assertIn("belief_updates", report.update)
         self.assertTrue(report.next_task)
+
+    def test_food_network_topology_creates_lightweight_barcode(self):
+        topology = FoodNetworkTopology()
+
+        barcode = topology.barcode(turn=1, stabilization_buffer=0)
+
+        self.assertTrue(barcode)
+        self.assertTrue(any(item.birth_scale == "local" for item in barcode))
+        self.assertTrue(
+            any(item.death_scale == "global_commodity_market" for item in barcode)
+        )
+        self.assertGreater(topology.risk_score(barcode), 0)
+
+    def test_high_food_topology_risk_can_select_distribution_action(self):
+        learner = EmmaHaitiEducationLearner()
+
+        learner.run_cycle()
+        report = learner.run_cycle()
+
+        self.assertEqual(
+            report.predict["chosen_action"],
+            "stabilize_food_distribution_network",
+        )
+        self.assertEqual(
+            report.predict["candidates"][1]["action"],
+            "stabilize_food_distribution_network",
+        )
 
     def test_seven_day_loop_updates_world_model(self):
         learner = EmmaHaitiEducationLearner()

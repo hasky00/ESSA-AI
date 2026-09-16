@@ -18,7 +18,25 @@ EMMA_ACTIONS = (
     "provide_meals_and_supplies",
     "psychosocial_teacher_support",
     "repair_school_and_enroll",
+    "stabilize_food_distribution_network",
 )
+
+
+SCALE_LEVELS = {
+    "local": 0,
+    "regional": 1,
+    "trade_corridor": 2,
+    "global_commodity_market": 3,
+}
+
+
+@dataclass(frozen=True)
+class FoodTopologyInterval:
+    feature: str
+    birth_scale: str
+    death_scale: str
+    persistence: int
+    risk: float
 
 
 @dataclass(frozen=True)
@@ -32,6 +50,9 @@ class EmmaCondition:
     teacher_access: str
     trauma_signs: str
     family_cost_pressure: str
+    food_network_barcode: tuple[FoodTopologyInterval, ...]
+    food_topology_risk: float
+    dominant_food_scale: str
     attendance: float
     felt_safety: float
     uncertainty: float
@@ -65,6 +86,8 @@ class EmmaHaitiEducationEnvironment:
         self.uncertainty = uncertainty
         self.route_buffer = 0.0
         self.safe_space_buffer = 0.0
+        self.food_network_buffer = 0.0
+        self.food_topology = FoodNetworkTopology()
 
     def observe(self) -> EmmaCondition:
         gang_pattern = ("high", "high", "extreme", "high", "medium", "extreme")
@@ -77,6 +100,9 @@ class EmmaHaitiEducationEnvironment:
         cost_pattern = ("high", "high", "medium", "severe", "high", "medium")
 
         i = self.turn % len(gang_pattern)
+        barcode = self.food_topology.barcode(self.turn, self.food_network_buffer)
+        food_topology_risk = self.food_topology.risk_score(barcode)
+        dominant_food_scale = self.food_topology.dominant_scale(barcode)
         route_risk = route_pattern[i]
         if self.route_buffer > 0 and route_risk != "crossfire":
             route_risk = "guarded"
@@ -90,6 +116,8 @@ class EmmaHaitiEducationEnvironment:
             hunger = "medium"
         if self.hunger_pressure <= 2:
             hunger = "low"
+        if food_topology_risk >= 6.0 and hunger == "medium":
+            hunger = "high"
 
         return EmmaCondition(
             turn=self.turn,
@@ -101,6 +129,9 @@ class EmmaHaitiEducationEnvironment:
             teacher_access=teacher_pattern[i],
             trauma_signs=trauma_pattern[i],
             family_cost_pressure=cost_pattern[i],
+            food_network_barcode=barcode,
+            food_topology_risk=round(food_topology_risk, 3),
+            dominant_food_scale=dominant_food_scale,
             attendance=round(self.attendance, 3),
             felt_safety=round(self.felt_safety, 3),
             uncertainty=round(self.uncertainty, 3),
@@ -122,10 +153,13 @@ class EmmaHaitiEducationEnvironment:
         self.uncertainty = self._clamp(self.uncertainty + effect["uncertainty_delta"])
         self.route_buffer = max(0.0, self.route_buffer - 1.0)
         self.safe_space_buffer = max(0.0, self.safe_space_buffer - 1.0)
+        self.food_network_buffer = max(0.0, self.food_network_buffer - 1.0)
         if action == "secure_learning_route":
             self.route_buffer = 2.0
         if action == "create_safe_learning_space":
             self.safe_space_buffer = 2.0
+        if action == "stabilize_food_distribution_network":
+            self.food_network_buffer = 3.0
         self.turn += 1
 
         uncertainty_delta = self.uncertainty - previous_uncertainty
@@ -153,6 +187,9 @@ class EmmaHaitiEducationEnvironment:
                 "learning_space": "temporary_safe"
                 if self.safe_space_buffer
                 else "ordinary_or_damaged",
+                "food_network_status": "buffered"
+                if self.food_network_buffer
+                else "fragile",
             },
         )
 
@@ -163,6 +200,7 @@ class EmmaHaitiEducationEnvironment:
             "provide_meals_and_supplies": 0.45,
             "psychosocial_teacher_support": 0.35,
             "repair_school_and_enroll": 0.65,
+            "stabilize_food_distribution_network": 0.8,
         }
         return costs[action]
 
@@ -173,6 +211,7 @@ class EmmaHaitiEducationEnvironment:
         school_blocked = condition.school_condition in {"damaged", "occupied", "inaccessible"}
         hunger_high = condition.hunger in {"high", "severe"}
         trauma_high = condition.trauma_signs in {"high", "severe"}
+        topology_risk_high = condition.food_topology_risk >= 6.0
 
         if action == "secure_learning_route":
             if route_danger:
@@ -186,6 +225,10 @@ class EmmaHaitiEducationEnvironment:
             if hunger_high or condition.family_cost_pressure in {"high", "severe"}:
                 return self._effect(1.1, 0.7, -2.0, -1.4)
             return self._effect(0.4, 0.2, -0.5, -0.3)
+        if action == "stabilize_food_distribution_network":
+            if topology_risk_high:
+                return self._effect(0.9, 0.5, -2.6, -1.8)
+            return self._effect(0.3, 0.2, -0.8, -0.4)
         if action == "psychosocial_teacher_support":
             if trauma_high or condition.teacher_access == "limited":
                 return self._effect(0.7, 1.2, -0.1, -1.2)
@@ -214,6 +257,46 @@ class EmmaHaitiEducationEnvironment:
 
     def _clamp(self, value: float) -> float:
         return max(0.0, min(10.0, value))
+
+
+class FoodNetworkTopology:
+    """Barcode-style persistent topology for food distribution constraints."""
+
+    def barcode(
+        self, turn: int, stabilization_buffer: float
+    ) -> tuple[FoodTopologyInterval, ...]:
+        pressure = max(0.0, 1.0 - stabilization_buffer * 0.22)
+        phases = (
+            ("market_access_gap", "local", "regional", 1, (0, 1, 3, 5), 1.6),
+            ("port_corridor_bottleneck", "regional", "trade_corridor", 1, (0, 2, 3, 5), 1.4),
+            ("fuel_price_shock", "trade_corridor", "global_commodity_market", 1, (1, 2, 5), 1.5),
+            ("import_price_loop", "local", "global_commodity_market", 3, (1, 3, 4), 1.2),
+        )
+        intervals = []
+        for feature, birth, death, persistence, active_turns, risk in phases:
+            if turn % 6 in active_turns:
+                intervals.append(
+                    FoodTopologyInterval(
+                        feature=feature,
+                        birth_scale=birth,
+                        death_scale=death,
+                        persistence=persistence,
+                        risk=round(risk * pressure, 3),
+                    )
+                )
+        return tuple(intervals)
+
+    def risk_score(self, barcode: tuple[FoodTopologyInterval, ...]) -> float:
+        return round(
+            sum(interval.persistence * interval.risk for interval in barcode),
+            3,
+        )
+
+    def dominant_scale(self, barcode: tuple[FoodTopologyInterval, ...]) -> str:
+        if not barcode:
+            return "local"
+        longest = max(barcode, key=lambda item: (item.persistence, item.risk))
+        return longest.death_scale
 
 
 class EmmaHaitiEducationLearner:
@@ -258,6 +341,14 @@ class EmmaHaitiEducationLearner:
                 statement="Repair and enrollment help only after access is safe enough.",
                 confidence=0.4,
             ),
+            Belief(
+                id="B6",
+                statement=(
+                    "Long-lived food network gaps across local, corridor, and "
+                    "global scales increase hunger risk."
+                ),
+                confidence=0.42,
+            ),
         ]
         self.previous_condition: EmmaCondition | None = None
         self.cycle_number = 0
@@ -271,6 +362,7 @@ class EmmaHaitiEducationLearner:
                         "detect_hidden_access_constraints",
                         "hypothesize_intervention_rules",
                         "predict_attendance_safety_hunger",
+                        "observe_food_network_topology",
                         "update_humanitarian_beliefs",
                     ),
                     constraints=(
@@ -401,6 +493,18 @@ class EmmaHaitiEducationLearner:
                 "teacher_access": condition.teacher_access,
                 "trauma_signs": condition.trauma_signs,
                 "family_cost_pressure": condition.family_cost_pressure,
+                "food_network_barcode": [
+                    {
+                        "feature": item.feature,
+                        "birth_scale": item.birth_scale,
+                        "death_scale": item.death_scale,
+                        "persistence": item.persistence,
+                        "risk": item.risk,
+                    }
+                    for item in condition.food_network_barcode
+                ],
+                "food_topology_risk": condition.food_topology_risk,
+                "dominant_food_scale": condition.dominant_food_scale,
                 "attendance": condition.attendance,
                 "felt_safety": condition.felt_safety,
                 "uncertainty": condition.uncertainty,
@@ -427,6 +531,12 @@ class EmmaHaitiEducationLearner:
             else "medium",
             "teacher_access": condition.teacher_access,
             "family_cost_pressure": condition.family_cost_pressure,
+            "food_topology_risk": "high"
+            if condition.food_topology_risk >= 6
+            else "medium"
+            if condition.food_topology_risk >= 3
+            else "low",
+            "dominant_food_scale": condition.dominant_food_scale,
             "attendance_pressure": "low" if condition.attendance < 5 else "recovering",
             "felt_safety": "low" if condition.felt_safety < 5 else "recovering",
         }
@@ -460,6 +570,11 @@ class EmmaHaitiEducationLearner:
             if features["trauma_pressure"] == "high"
             else "repair_school_and_enroll"
         )
+        hunger_action = (
+            "stabilize_food_distribution_network"
+            if features["food_topology_risk"] == "high"
+            else "provide_meals_and_supplies"
+        )
         return [
             {
                 "id": "H1",
@@ -470,10 +585,15 @@ class EmmaHaitiEducationLearner:
             },
             {
                 "id": "H2",
-                "explanation": "Hunger and cost pressure are blocking school continuity.",
-                "action": "provide_meals_and_supplies",
-                "confidence": self._belief_confidence("B2"),
-                "support": "hunger_pressure",
+                "explanation": (
+                    "Hunger may come from a persistent food-distribution gap "
+                    "across scales."
+                ),
+                "action": hunger_action,
+                "confidence": max(
+                    self._belief_confidence("B2"), self._belief_confidence("B6")
+                ),
+                "support": "food_topology_barcode",
             },
             {
                 "id": "H3",
@@ -598,6 +718,8 @@ class EmmaHaitiEducationLearner:
         features = detected["features"]
         if features["route_access"] == "danger":
             return "reduce_violence_risk_on_route_to_school"
+        if features["food_topology_risk"] == "high":
+            return "shorten_persistent_food_network_barcode"
         if features["hunger_pressure"] == "high":
             return "reduce_hunger_and_cost_barrier"
         if features["school_access"] == "blocked":
@@ -623,6 +745,11 @@ class EmmaHaitiEducationLearner:
         ):
             surprises.append("hunger_lower_but_attendance_dropped")
         if (
+            features["food_topology_risk"] == "high"
+            and condition.hunger != "high"
+        ):
+            surprises.append("food_network_barcode_high_but_hunger_not_high")
+        if (
             features["school_access"] == "open"
             and features["felt_safety"] == "low"
         ):
@@ -637,6 +764,8 @@ class EmmaHaitiEducationLearner:
             return -1.3 if features["school_access"] == "blocked" else -0.5
         if action == "provide_meals_and_supplies":
             return -1.2 if features["hunger_pressure"] == "high" else -0.3
+        if action == "stabilize_food_distribution_network":
+            return -1.6 if features["food_topology_risk"] == "high" else -0.4
         if action == "psychosocial_teacher_support":
             return -1.0 if features["trauma_pressure"] == "high" else -0.2
         if action == "repair_school_and_enroll":
@@ -651,6 +780,8 @@ class EmmaHaitiEducationLearner:
         gain = 0.4 if known_rule else 0.8
         if detected["low_confidence_beliefs"]:
             gain += 0.2
+        if action == "stabilize_food_distribution_network":
+            gain += 0.35
         if action == "repair_school_and_enroll" and detected["features"]["route_access"] == "danger":
             gain += 0.3
         return gain
@@ -661,6 +792,8 @@ class EmmaHaitiEducationLearner:
             return 1.2
         if action == "provide_meals_and_supplies" and features["hunger_pressure"] == "high":
             return 1.0
+        if action == "stabilize_food_distribution_network" and features["food_topology_risk"] == "high":
+            return 1.15
         if action == "create_safe_learning_space" and features["school_access"] == "blocked":
             return 0.95
         if action == "psychosocial_teacher_support" and features["trauma_pressure"] == "high":
@@ -701,6 +834,8 @@ class EmmaHaitiEducationLearner:
             ids.append("B1")
         if action == "provide_meals_and_supplies":
             ids.append("B2")
+        if action == "stabilize_food_distribution_network":
+            ids.extend(["B2", "B6"])
         if action == "create_safe_learning_space":
             ids.append("B3")
         if action == "psychosocial_teacher_support":
