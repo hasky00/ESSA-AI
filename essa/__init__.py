@@ -29,11 +29,11 @@ from essa.notification_lab import (
     NotificationEnergyEnvironment,
     NotificationEnergyLearner,
 )
-from essa.emma_case import (
-    EmmaCondition,
-    EmmaHaitiEducationEnvironment,
-    EmmaHaitiEducationLearner,
-    EmmaResult,
+from essa.haiti_education_case import (
+    ESSAHaitiCondition,
+    ESSAHaitiEducationEnvironment,
+    ESSAHaitiEducationLearner,
+    ESSAHaitiResult,
     FoodNetworkTopology,
     FoodTopologyInterval,
 )
@@ -43,10 +43,10 @@ __all__ = [
     "Belief",
     "CycleReport",
     "Entity",
-    "EmmaCondition",
-    "EmmaHaitiEducationEnvironment",
-    "EmmaHaitiEducationLearner",
-    "EmmaResult",
+    "ESSAHaitiCondition",
+    "ESSAHaitiEducationEnvironment",
+    "ESSAHaitiEducationLearner",
+    "ESSAHaitiResult",
     "EnergyCondition",
     "EnergyResult",
     "FoodNetworkTopology",

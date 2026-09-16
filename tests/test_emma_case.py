@@ -1,15 +1,15 @@
 import unittest
 
-from essa.emma_case import (
-    EmmaHaitiEducationEnvironment,
-    EmmaHaitiEducationLearner,
+from essa.haiti_education_case import (
+    ESSAHaitiEducationEnvironment,
+    ESSAHaitiEducationLearner,
     FoodNetworkTopology,
 )
 
 
-class EmmaHaitiEducationCaseTests(unittest.TestCase):
+class ESSAHaitiEducationCaseTests(unittest.TestCase):
     def test_north_star_matches_child_safety_goal(self):
-        learner = EmmaHaitiEducationLearner()
+        learner = ESSAHaitiEducationLearner()
 
         self.assertIn("Prevent violence", learner.north_star)
         self.assertIn("prevent hunger", learner.north_star)
@@ -17,16 +17,18 @@ class EmmaHaitiEducationCaseTests(unittest.TestCase):
         self.assertIn("feel safe", learner.north_star)
 
     def test_cycle_observes_article_grounded_constraints(self):
-        learner = EmmaHaitiEducationLearner()
+        learner = ESSAHaitiEducationLearner()
 
         report = learner.run_cycle()
 
         self.assertIn("gang_pressure", report.observe)
+        self.assertIn("group_violence", report.observe)
         self.assertIn("hunger", report.observe)
         self.assertIn("route_risk", report.observe)
         self.assertIn("trauma_signs", report.observe)
         self.assertIn("food_network_barcode", report.observe)
         self.assertIn("food_topology_risk", report.observe)
+        self.assertIn("group_violence", report.detect["features"])
         self.assertEqual(len(report.hypothesize), 3)
         self.assertIn("chosen_action", report.predict)
         self.assertIn("belief_updates", report.update)
@@ -45,7 +47,7 @@ class EmmaHaitiEducationCaseTests(unittest.TestCase):
         self.assertGreater(topology.risk_score(barcode), 0)
 
     def test_high_food_topology_risk_can_select_distribution_action(self):
-        learner = EmmaHaitiEducationLearner()
+        learner = ESSAHaitiEducationLearner()
 
         learner.run_cycle()
         report = learner.run_cycle()
@@ -60,7 +62,7 @@ class EmmaHaitiEducationCaseTests(unittest.TestCase):
         )
 
     def test_seven_day_loop_updates_world_model(self):
-        learner = EmmaHaitiEducationLearner()
+        learner = ESSAHaitiEducationLearner()
 
         reports = [learner.run_cycle() for _ in range(7)]
 
@@ -69,14 +71,14 @@ class EmmaHaitiEducationCaseTests(unittest.TestCase):
         self.assertTrue(any(belief.evidence_count for belief in learner.world_model))
 
     def test_safe_learning_space_can_buffer_blocked_school(self):
-        environment = EmmaHaitiEducationEnvironment()
+        environment = ESSAHaitiEducationEnvironment()
 
         result = environment.apply("create_safe_learning_space")
 
         self.assertEqual(result.visible_effect["learning_space"], "temporary_safe")
 
     def test_cycle_text_uses_requested_loop_format(self):
-        learner = EmmaHaitiEducationLearner()
+        learner = ESSAHaitiEducationLearner()
 
         text = learner.cycle_text(learner.run_cycle())
 
