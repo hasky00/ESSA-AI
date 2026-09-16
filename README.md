@@ -172,6 +172,33 @@ energy, productivity, and disturbance. ESSA can only see daily-style
 observations; the hidden rules decide whether each action creates clarity,
 partial information, or new data.
 
+Run the EMMA Haiti education case for seven days with:
+
+```bash
+python3 -m examples.emma_haiti_education_case --days 7
+```
+
+This case is grounded in a UN News article about children returning to school in
+Haiti under gang violence and displacement:
+
+```text
+https://news.un.org/en/story/2026/09/1168337
+```
+
+EMMA's north star is:
+
+```text
+Prevent violence, prevent hunger, help children go to school,
+and help children feel safe.
+```
+
+Each day, EMMA observes child-safety constraints such as gang pressure,
+displacement, hunger, school condition, route risk, teacher access, trauma
+signals, family cost pressure, attendance, felt safety, and uncertainty. It then
+hypothesizes which action best serves the north star: securing the route,
+creating a safe learning space, providing meals and supplies, supporting
+teachers and trauma recovery, or repairing/enrolling when access is safe enough.
+
 ## Landing page voice
 
 The GitHub Pages landing page can play a generated ESSA introduction from

@@ -29,12 +29,22 @@ from essa.notification_lab import (
     NotificationEnergyEnvironment,
     NotificationEnergyLearner,
 )
+from essa.emma_case import (
+    EmmaCondition,
+    EmmaHaitiEducationEnvironment,
+    EmmaHaitiEducationLearner,
+    EmmaResult,
+)
 
 __all__ = [
     "ActionResult",
     "Belief",
     "CycleReport",
     "Entity",
+    "EmmaCondition",
+    "EmmaHaitiEducationEnvironment",
+    "EmmaHaitiEducationLearner",
+    "EmmaResult",
     "EnergyCondition",
     "EnergyResult",
     "EnvironmentCondition",
