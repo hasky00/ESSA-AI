@@ -190,6 +190,27 @@ lessons. Persist that cognitive memory between runs with:
 python3 -m examples.essa_haiti_education_case --days 7 --memory-file essa-memory.json
 ```
 
+## Neuromorphic hardware scaling
+
+ESSA includes an experimental hardware substrate layer for distributing sparse,
+event-driven cognitive workloads across multiple neuromorphic chips or nodes.
+It separates the cognitive code from vendor SDKs through device adapters,
+partitions work by neuron, synapse, and event capacity, routes events between
+devices, and can reject allocations that exceed a declared power envelope.
+
+Run the dependency-free capacity-planning simulation with:
+
+```bash
+python3 -m examples.neuromorphic_hardware_scale --devices 4 --power-budget 20
+```
+
+The included adapter is a simulator, so `20` watts is a planning assumption,
+not measured electrical consumption. Real deployment requires an adapter for
+the attached hardware SDK plus power telemetry from that system. The software
+leaky-integrate-and-fire gate and cluster planner are designed so CPU simulation
+can be replaced by a hardware backend without changing ESSA's SELF or case
+logic.
+
 This case is grounded in a UN News article about children returning to school in
 Haiti under gang violence and displacement:
 
