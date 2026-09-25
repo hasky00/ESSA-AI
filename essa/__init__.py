@@ -22,6 +22,11 @@ from essa.substrate_intelligence import (
     SubstrateIntelligenceDevice,
     SubstrateSensorNode,
 )
+from essa.sid1_io import (
+    SID1LocalizationConfig,
+    load_detections_csv,
+    load_sid1_config,
+)
 from essa.self_model import (
     Essence,
     HistoryEvent,
@@ -103,6 +108,7 @@ __all__ = [
     "RuntimeSubstrateInspector",
     "SelfModel",
     "SemanticMemory",
+    "SID1LocalizationConfig",
     "SimulatedNeuromorphicAdapter",
     "StateTransition",
     "StaticSubstrateInspector",
@@ -110,4 +116,6 @@ __all__ = [
     "SubstrateDetection",
     "SubstrateIntelligenceDevice",
     "SubstrateSensorNode",
+    "load_detections_csv",
+    "load_sid1_config",
 ]

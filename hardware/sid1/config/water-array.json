@@ -1,0 +1,43 @@
+{
+  "device_id": "HASKY-LABS-ESSA-SID1-001",
+  "relay_enabled": false,
+  "sensors": [
+    {
+      "sensor_id": "riverbed-nw",
+      "x_meters": 0,
+      "y_meters": 100,
+      "medium": "water",
+      "modality": "hydrophone",
+      "clock_uncertainty_seconds": 0.0001
+    },
+    {
+      "sensor_id": "riverbed-ne",
+      "x_meters": 100,
+      "y_meters": 100,
+      "medium": "water",
+      "modality": "hydrophone",
+      "clock_uncertainty_seconds": 0.0001
+    },
+    {
+      "sensor_id": "riverbed-sw",
+      "x_meters": 0,
+      "y_meters": 0,
+      "medium": "water",
+      "modality": "hydrophone",
+      "clock_uncertainty_seconds": 0.0001
+    },
+    {
+      "sensor_id": "riverbed-se",
+      "x_meters": 100,
+      "y_meters": 0,
+      "medium": "water",
+      "modality": "hydrophone",
+      "clock_uncertainty_seconds": 0.0001
+    }
+  ],
+  "localization": {
+    "propagation_speed_mps": 1500,
+    "bounds": [0, 100, 0, 100],
+    "grid_step_meters": 1
+  }
+}

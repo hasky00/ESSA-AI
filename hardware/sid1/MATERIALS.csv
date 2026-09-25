@@ -1,0 +1,20 @@
+phase,subsystem,item,quantity,minimum_spec,reference_choice,status
+A,sensor,Underwater hydrophone,4,Omnidirectional; suitable tag bandwidth; known sensitivity; field-rated cable,Aquarian H2a-XLR or validated equivalent,source before build
+A,acquisition,Synchronous multichannel recorder,1,At least 4 simultaneous channels; 192 kHz; shared clock; phantom power where required,Zoom F6 or validated equivalent,source before build
+A,edge_compute,Single-board computer,1,64-bit Linux; USB host; 4 GB RAM; local storage,Raspberry Pi 5 4 GB,development choice
+A,storage,Industrial microSD or NVMe storage,1,At least 64 GB; high endurance,Vendor-qualified part,source before build
+A,power,LiFePO4 battery and fused distribution,1,Sized from measured load; protected output; field-replaceable,Engineering selection required,not selected
+A,enclosure,Edge-controller enclosure,1,IP67 or better; pressure vent; corrosion-resistant hardware,Polycarbonate field enclosure,not selected
+A,cabling,Shielded hydrophone cable,4,Length determined by array; underwater rated; strain relieved,Hydrophone-compatible cable,not selected
+A,cabling,Marine cable glands,5,IP68; cable-diameter matched; strain relief,Nickel-plated brass or polymer,not selected
+A,mechanical,Sensor anchor frames,4,Stable coordinates; retrieval point; 316 stainless fasteners,Custom fabricated,not designed
+A,timing,Array synchronization reference,1,One shared recorder clock for all channels,Integrated recorder clock,development choice
+A,safety,Inline fuse and disconnect,1,Rated for selected battery and peak load,Engineering selection required,not selected
+A,calibration,Known-position acoustic source,1,Repeatable pulse or authorized test tag; documented frequency,Research calibration source,permit may apply
+A,calibration,Temperature and conductivity probe,1,Supports local sound-speed calibration,Field water-quality probe,not selected
+B,custom_adc,Four-channel simultaneous ADC,1,24 bit; at least 200 kSPS per channel; common frame clock,Texas Instruments ADS127L14,candidate only
+B,custom_frontend,Low-noise analog front end,4,Hydrophone matched; anti-alias filter; ESD and input protection,Custom PCB,engineering required
+B,embedded_compute,Low-power controller or compute module,1,SPI capture; monotonic timestamp; watchdog; secure update,CM5 or suitable MCU,candidate only
+B,neuromorphic,Neuromorphic accelerator,1,Event input; supported SDK; measurable power telemetry,Hardware adapter TBD,research access required
+B,communications,Wired event mesh,1,Deterministic local timing; CRC; galvanic isolation where needed,Industrial Ethernet or RS-485,candidate only
+B,power,Power telemetry,1,Voltage and current measurement at controller and sensor rails,Calibrated monitor IC,engineering required

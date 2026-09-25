@@ -229,6 +229,16 @@ example uses four simulated riverbed hydrophones and an authorized acoustic tag.
 See [`docs/SID_1_BLUEPRINT.md`](docs/SID_1_BLUEPRINT.md) for the physical
 prototype path, scientific limits, and deployment safeguards.
 
+Hasky Labs' Revision 0.1 design package adds a phased material list, electrical
+and mechanical architecture, deployment configuration, sample sensor data, and
+a field-controller CLI under [`hardware/sid1`](hardware/sid1). Run it with:
+
+```bash
+python3 -m examples.sid1_field_controller \
+  --config hardware/sid1/config/water-array.json \
+  --detections hardware/sid1/sample/detections.csv
+```
+
 This case is grounded in a UN News article about children returning to school in
 Haiti under gang violence and displacement:
 

@@ -1,0 +1,5 @@
+sensor_id,source_signature,arrival_time_seconds,amplitude
+riverbed-nw,authorized-acoustic-tag-crocodile-01,100.03441575866438,0.82
+riverbed-ne,authorized-acoustic-tag-crocodile-01,100.04837354648978,0.76
+riverbed-sw,authorized-acoustic-tag-crocodile-01,100.0492837588754,0.71
+riverbed-se,authorized-acoustic-tag-crocodile-01,100.059870230035,0.64
