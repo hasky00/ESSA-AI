@@ -7,6 +7,9 @@ __pycache__/
 .env.local
 .env.*.local
 
+# Local ESSA runtime state
+essa-memory.json
+
 # C extensions
 *.so
 
