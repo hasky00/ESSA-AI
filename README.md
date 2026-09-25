@@ -211,6 +211,24 @@ leaky-integrate-and-fire gate and cluster planner are designed so CPU simulation
 can be replaced by a hardware backend without changing ESSA's SELF or case
 logic.
 
+## Substrate Intelligence Device SID-1
+
+SID-1 is ESSA's first earth-native localization device architecture. Embedded
+sensors detect a signal inside water or soil, and the local mesh estimates its
+position from synchronized arrival times. Satellite, cellular, or radio links
+are optional relays for an estimate that SID-1 has already calculated locally.
+
+Run the crocodile-tag reference simulation with:
+
+```bash
+python3 -m examples.substrate_tracking_device
+```
+
+This is a software reference device, not manufactured tracking hardware. The
+example uses four simulated riverbed hydrophones and an authorized acoustic tag.
+See [`docs/SID_1_BLUEPRINT.md`](docs/SID_1_BLUEPRINT.md) for the physical
+prototype path, scientific limits, and deployment safeguards.
+
 This case is grounded in a UN News article about children returning to school in
 Haiti under gang violence and displacement:
 

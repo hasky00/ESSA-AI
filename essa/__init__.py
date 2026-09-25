@@ -16,6 +16,12 @@ from essa.neuromorphic_hardware import (
     NeuromorphicWorkload,
     SimulatedNeuromorphicAdapter,
 )
+from essa.substrate_intelligence import (
+    LocalizationEstimate,
+    SubstrateDetection,
+    SubstrateIntelligenceDevice,
+    SubstrateSensorNode,
+)
 from essa.self_model import (
     Essence,
     HistoryEvent,
@@ -79,6 +85,7 @@ __all__ = [
     "InterconnectRoute",
     "HiddenConstraintEnvironment",
     "LearnedRule",
+    "LocalizationEstimate",
     "MemoryEpisode",
     "MemoryRecall",
     "NotificationEnergyEnvironment",
@@ -100,4 +107,7 @@ __all__ = [
     "StateTransition",
     "StaticSubstrateInspector",
     "SubstrateSnapshot",
+    "SubstrateDetection",
+    "SubstrateIntelligenceDevice",
+    "SubstrateSensorNode",
 ]
