@@ -3,10 +3,22 @@
 This directory contains Hasky Labs' Revision 0.1 design inputs for the ESSA
 Substrate Intelligent Device 1.
 
+![ESSA-SID1 multimodal industrial-design concept](assets/essa-sid1-multimodal-concept.png)
+
+The image is an AI-generated industrial-design concept, not a photograph of
+manufactured or field-certified hardware. It illustrates the future multimodal
+product family: four water hydrophones (`W1`-`W4`), one ground-coupled three-axis
+geophone (`G1`), and an inertial reference inside the base station. SID1-A
+remains the smaller four-hydrophone controlled-water experiment described in
+the build plan.
+
 - `DESIGN.md`: system, electrical, mechanical, power, software, and validation design.
 - `SID1_A_BUILD_PLAN.md`: agreed purchasing, assembly, controlled-water test,
   acceptance evidence, and stop conditions for the first physical prototype.
+- `SENSOR_PODS.md`: boundaries and provisional requirements for the water,
+  ground, and inertial sensing domains shown in the concept.
 - `MATERIALS.csv`: phased bill of materials with minimum specifications and selection status.
+- `SOCIAL_POSTS.md`: technically honest introductory copy for X and Nostr.
 - `config/water-array.json`: reference sensor geometry and solver configuration.
 - `sample/detections.csv`: synchronized acceptance-test detections.
 

@@ -245,6 +245,11 @@ SID1-A keeps the recorder, computer, storage, and power system dry; purchasing
 expands from one verified signal channel to four only after each evidence gate
 passes.
 
+The future multimodal industrial-design concept and its explicit water, ground,
+and inertial sensing boundaries are documented in
+[`hardware/sid1`](hardware/sid1). The render is a design reference, not evidence
+of manufactured or validated hardware.
+
 This case is grounded in a UN News article about children returning to school in
 Haiti under gang violence and displacement:
 

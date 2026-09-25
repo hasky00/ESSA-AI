@@ -45,6 +45,25 @@ flowchart LR
 - At least three valid detections are required; four provide redundancy and
   stronger geometry.
 
+## Multimodal product concept
+
+The product concept in `assets/essa-sid1-multimodal-concept.png` extends the
+water array with a separately coupled three-axis ground-vibration pod and an
+internal inertial reference. These modalities have different physical meanings
+and must not be treated as interchangeable measurements:
+
+- `W1`-`W4` measure acoustic pressure in water and support water-domain TDOA.
+- `G1` measures motion coupled through soil, rock, or a structure.
+- The internal IMU measures movement of the base station so software can reject
+  handling and enclosure-motion artifacts.
+
+The modalities may corroborate one event, but they require separate calibration,
+filters, noise models, and confidence values. A passive sensor cannot guarantee
+detection of every movement. Detection and localization claims must state the
+source, medium, range, bandwidth, coupling, background noise, and measured error.
+The `G1` pod and production materials are future design inputs, not additions to
+the SID1-A procurement list.
+
 ## Timing and accuracy budget
 
 At a nominal water sound speed of 1,500 m/s, one meter of path length corresponds
