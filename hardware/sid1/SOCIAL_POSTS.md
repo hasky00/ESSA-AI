@@ -4,12 +4,11 @@ Attach `assets/essa-sid1-multimodal-concept.png` to either post.
 
 ## X
 
-Introducing ESSA-SID1, Hasky Labs' water-and-ground sensing research concept.
-Four synchronized hydrophones, a 3-axis geophone and edge intelligence explore
-local positioning without satellites. AI-generated design; no field-ready
-hardware yet.
+Introducing ESSA-SID1: Hasky Labs' concept for local water-and-ground sensing
+with 4 hydrophones, a 3-axis geophone and edge intelligence. We invite research
+and funding partners to help build and test SID1-A.
 
-https://github.com/hasky00/ESSA-AI
+Concept, not field-ready hardware: https://github.com/hasky00/ESSA-AI
 
 ## Nostr
 
@@ -28,6 +27,16 @@ The attached image is an AI-generated industrial-design concept, not a
 manufactured, certified, or field-validated device. SID1-A starts smaller: one
 verified hydrophone channel, then a controlled four-channel water experiment
 with measured evidence at every stage.
+
+Hasky Labs invites universities, environmental monitoring organizations,
+sensor manufacturers and mission-aligned funders to help turn SID1-A into a
+measured laboratory prototype. Useful collaboration could include prototype
+funding, equipment sponsorship, electrical or acoustic engineering review, and
+access to controlled-water test facilities.
+
+Organizations interested in collaborating can open an issue titled
+"SID1-A collaboration":
+https://github.com/hasky00/ESSA-AI/issues
 
 Code and open design work:
 https://github.com/hasky00/ESSA-AI
