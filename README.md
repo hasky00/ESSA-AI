@@ -239,6 +239,12 @@ python3 -m examples.sid1_field_controller \
   --detections hardware/sid1/sample/detections.csv
 ```
 
+The agreed route to the first physical unit is recorded in
+[`hardware/sid1/SID1_A_BUILD_PLAN.md`](hardware/sid1/SID1_A_BUILD_PLAN.md).
+SID1-A keeps the recorder, computer, storage, and power system dry; purchasing
+expands from one verified signal channel to four only after each evidence gate
+passes.
+
 This case is grounded in a UN News article about children returning to school in
 Haiti under gang violence and displacement:
 

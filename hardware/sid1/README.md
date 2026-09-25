@@ -4,6 +4,8 @@ This directory contains Hasky Labs' Revision 0.1 design inputs for the ESSA
 Substrate Intelligent Device 1.
 
 - `DESIGN.md`: system, electrical, mechanical, power, software, and validation design.
+- `SID1_A_BUILD_PLAN.md`: agreed purchasing, assembly, controlled-water test,
+  acceptance evidence, and stop conditions for the first physical prototype.
 - `MATERIALS.csv`: phased bill of materials with minimum specifications and selection status.
 - `config/water-array.json`: reference sensor geometry and solver configuration.
 - `sample/detections.csv`: synchronized acceptance-test detections.
