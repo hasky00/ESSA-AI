@@ -182,6 +182,14 @@ After the final cycle, ESSA prints a compact run summary showing changes in
 attendance, felt safety, uncertainty, and hunger pressure, plus the actions it
 tested and how often its predictions matched the observed direction.
 
+ESSA also stores salient episodes, recalls similar past situations before it
+predicts, and consolidates repeated experiences into explainable semantic
+lessons. Persist that cognitive memory between runs with:
+
+```bash
+python3 -m examples.essa_haiti_education_case --days 7 --memory-file essa-memory.json
+```
+
 This case is grounded in a UN News article about children returning to school in
 Haiti under gang violence and displacement:
 

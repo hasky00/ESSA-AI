@@ -4,6 +4,7 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Any
 
+from essa.cognitive_memory import CognitiveMemory
 from essa.hidden_lab import Belief, CycleReport, LearnedRule
 from essa.self_model import (
     Observation,
@@ -323,9 +324,11 @@ class ESSAHaitiEducationLearner:
         self,
         self_model: SelfModel | None = None,
         environment: ESSAHaitiEducationEnvironment | None = None,
+        cognitive_memory: CognitiveMemory | None = None,
     ) -> None:
         self.self_model = self_model or SelfModel()
         self.environment = environment or ESSAHaitiEducationEnvironment()
+        self.cognitive_memory = cognitive_memory or CognitiveMemory()
         self.north_star = (
             "Prevent violence, prevent hunger, help children go to school, "
             "and help children feel safe."
@@ -421,6 +424,10 @@ class ESSAHaitiEducationLearner:
                 "uncertainty": result.next_uncertainty,
                 "next_task": next_task,
                 "belief_count": len(self.world_model),
+                "episodic_memory_count": len(self.cognitive_memory.episodes),
+                "semantic_memory_count": len(
+                    self.cognitive_memory.semantic_memories
+                ),
             },
         )
 
@@ -473,6 +480,33 @@ class ESSAHaitiEducationLearner:
             for rule in ranked[:8]
         ]
 
+    def output_cognitive_memory(self) -> dict[str, Any]:
+        return {
+            "episodes": [
+                {
+                    "id": episode.id,
+                    "action": episode.action,
+                    "outcome": episode.outcome,
+                    "salience": episode.salience,
+                    "strength": episode.strength,
+                    "recall_count": episode.recall_count,
+                    "surprises": list(episode.surprises),
+                }
+                for episode in self.cognitive_memory.episodes
+            ],
+            "semantic_memories": [
+                {
+                    "id": memory.id,
+                    "action": memory.action,
+                    "conditions": list(memory.conditions),
+                    "expected_delta": memory.expected_delta,
+                    "confidence": memory.confidence,
+                    "evidence_count": memory.evidence_count,
+                }
+                for memory in self.cognitive_memory.semantic_memories
+            ],
+        }
+
     def summarize_run(self, reports: list[CycleReport]) -> dict[str, Any]:
         """Summarize measurable change without hiding individual cycle evidence."""
         if not reports:
@@ -511,6 +545,8 @@ class ESSAHaitiEducationLearner:
             "protective_progress_cycles": sum(
                 report.act["outcome"] == "protective_progress" for report in reports
             ),
+            "episodic_memories": len(self.cognitive_memory.episodes),
+            "semantic_memories": len(self.cognitive_memory.semantic_memories),
             "next_task": reports[-1].next_task,
         }
 
@@ -544,6 +580,11 @@ class ESSAHaitiEducationLearner:
                 f"  Hunger pressure change: {summary['hunger_pressure_change']:+}",
                 f"  Prediction accuracy: {summary['prediction_accuracy']:.1%}",
                 f"  Protective progress cycles: {summary['protective_progress_cycles']}",
+                (
+                    "  Cognitive memory: "
+                    f"{summary['episodic_memories']} episodes, "
+                    f"{summary['semantic_memories']} consolidated lessons"
+                ),
                 f"  Actions: {actions}",
                 f"  Next task: {summary['next_task']}",
             ]
@@ -719,14 +760,24 @@ class ESSAHaitiEducationLearner:
         for hypothesis in hypotheses:
             action = hypothesis["action"]
             rule = self.learned_rules.get((detected["condition_key"], action))
+            memory_estimate = self.cognitive_memory.estimate(
+                detected["features"], action
+            )
             if rule and rule.attempts:
                 expected_delta = rule.average_uncertainty_delta
                 basis = "learned_rule"
                 confidence = rule.confidence
+                recalled_episode_ids: list[str] = []
+            elif memory_estimate:
+                expected_delta = memory_estimate["expected_delta"]
+                basis = "episodic_memory"
+                confidence = memory_estimate["confidence"]
+                recalled_episode_ids = memory_estimate["episode_ids"]
             else:
                 expected_delta = self._prior_delta(action, detected)
                 basis = "core_belief_prior"
                 confidence = hypothesis["confidence"]
+                recalled_episode_ids = []
             information_gain = self._information_gain(detected, action, rule is not None)
             cost_risk = self.environment.action_cost(action)
             north_star_progress = self._north_star_progress(detected, action)
@@ -740,6 +791,7 @@ class ESSAHaitiEducationLearner:
                     ),
                     "expected_delta": round(expected_delta, 3),
                     "confidence": round(confidence, 3),
+                    "recalled_episode_ids": recalled_episode_ids,
                     "expected_information_gain": round(information_gain, 3),
                     "cost_risk": round(cost_risk, 3),
                     "north_star_progress": round(north_star_progress, 3),
@@ -792,6 +844,18 @@ class ESSAHaitiEducationLearner:
             result.next_uncertainty - result.previous_uncertainty
         )
         belief_updates = self._update_beliefs(detected, action, result, evaluation)
+        surprises = list(detected["surprises"])
+        if evaluation["surprise"]:
+            surprises.append(evaluation["surprise"])
+        episode = self.cognitive_memory.remember(
+            context=detected["features"],
+            action=action,
+            predicted_delta=prediction["expected_delta"],
+            actual_delta=evaluation["actual_delta"],
+            outcome=result.outcome,
+            prediction_confirmed=evaluation["prediction_confirmed"],
+            surprises=surprises,
+        )
         self.world_model = [
             belief for belief in self.world_model if belief.confidence >= 0.2
         ]
@@ -811,6 +875,22 @@ class ESSAHaitiEducationLearner:
             "success_rate": round(rule.success_rate, 3),
             "average_uncertainty_delta": round(rule.average_uncertainty_delta, 3),
             "previous_prediction_basis": prediction["basis"],
+            "memory_episode": {
+                "id": episode.id,
+                "salience": episode.salience,
+                "surprises": list(episode.surprises),
+            },
+            "consolidated_lessons": [
+                {
+                    "id": memory.id,
+                    "action": memory.action,
+                    "conditions": list(memory.conditions),
+                    "expected_delta": memory.expected_delta,
+                    "confidence": memory.confidence,
+                    "evidence_count": memory.evidence_count,
+                }
+                for memory in self.cognitive_memory.semantic_memories
+            ],
             "belief_updates": belief_updates,
             "active_beliefs": self.output_world_model(),
         }

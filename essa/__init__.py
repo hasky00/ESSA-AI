@@ -1,5 +1,11 @@
 """ESSA executable symbolic SELF core."""
 
+from essa.cognitive_memory import (
+    CognitiveMemory,
+    MemoryEpisode,
+    MemoryRecall,
+    SemanticMemory,
+)
 from essa.self_model import (
     Essence,
     HistoryEvent,
@@ -41,6 +47,7 @@ from essa.haiti_education_case import (
 __all__ = [
     "ActionResult",
     "Belief",
+    "CognitiveMemory",
     "CycleReport",
     "Entity",
     "ESSAHaitiCondition",
@@ -59,6 +66,8 @@ __all__ = [
     "Identity",
     "HiddenConstraintEnvironment",
     "LearnedRule",
+    "MemoryEpisode",
+    "MemoryRecall",
     "NotificationEnergyEnvironment",
     "NotificationEnergyLearner",
     "Observation",
@@ -67,6 +76,7 @@ __all__ = [
     "Relation",
     "RuntimeSubstrateInspector",
     "SelfModel",
+    "SemanticMemory",
     "StateTransition",
     "StaticSubstrateInspector",
     "SubstrateSnapshot",

@@ -92,6 +92,26 @@ class ESSAHaitiEducationCaseTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             learner.summarize_run([])
 
+    def test_haiti_case_records_and_recalls_cognitive_memory(self):
+        learner = ESSAHaitiEducationLearner()
+
+        reports = [learner.run_cycle() for _ in range(7)]
+
+        self.assertEqual(len(learner.cognitive_memory.episodes), 7)
+        self.assertTrue(learner.cognitive_memory.semantic_memories)
+        self.assertTrue(
+            any(
+                candidate["basis"] == "episodic_memory"
+                for report in reports
+                for candidate in report.predict["candidates"]
+            )
+        )
+        self.assertIn("memory_episode", reports[-1].update)
+        self.assertEqual(
+            learner.self_model.state["episodic_memory_count"],
+            7,
+        )
+
     def test_safe_learning_space_can_buffer_blocked_school(self):
         environment = ESSAHaitiEducationEnvironment()
 
