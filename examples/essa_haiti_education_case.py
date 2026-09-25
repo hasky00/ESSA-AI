@@ -30,6 +30,7 @@ def main() -> None:
             json.dumps(
                 {
                     "days": [report.__dict__ for report in reports],
+                    "summary": learner.summarize_run(reports),
                     "forward_rules": learner.output_forward_rules(),
                     "world_model": learner.output_world_model(),
                     "source": learner.source_url,
@@ -40,6 +41,7 @@ def main() -> None:
         )
     else:
         print("\n\n".join(learner.cycle_text(report) for report in reports))
+        print("\n\n" + learner.summary_text(reports))
 
 
 def print_report(

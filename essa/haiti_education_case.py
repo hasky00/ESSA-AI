@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from typing import Any
 
@@ -471,6 +472,82 @@ class ESSAHaitiEducationLearner:
             }
             for rule in ranked[:8]
         ]
+
+    def summarize_run(self, reports: list[CycleReport]) -> dict[str, Any]:
+        """Summarize measurable change without hiding individual cycle evidence."""
+        if not reports:
+            raise ValueError("At least one cycle report is required")
+
+        first = reports[0]
+        actions = Counter(report.act["action"] for report in reports)
+        confirmed = sum(
+            bool(report.evaluate["prediction_confirmed"]) for report in reports
+        )
+        hunger_delta = sum(
+            float(report.act["visible_effect"]["hunger_pressure_delta"])
+            for report in reports
+        )
+        starting = {
+            "attendance": float(first.observe["attendance"]),
+            "felt_safety": float(first.observe["felt_safety"]),
+            "uncertainty": float(first.observe["uncertainty"]),
+        }
+        ending = {
+            "attendance": round(self.environment.attendance, 3),
+            "felt_safety": round(self.environment.felt_safety, 3),
+            "uncertainty": round(self.environment.uncertainty, 3),
+        }
+        return {
+            "cycles": len(reports),
+            "north_star": self.north_star,
+            "starting": starting,
+            "ending": ending,
+            "change": {
+                key: round(ending[key] - starting[key], 3) for key in starting
+            },
+            "hunger_pressure_change": round(hunger_delta, 3),
+            "actions": dict(sorted(actions.items())),
+            "prediction_accuracy": round(confirmed / len(reports), 3),
+            "protective_progress_cycles": sum(
+                report.act["outcome"] == "protective_progress" for report in reports
+            ),
+            "next_task": reports[-1].next_task,
+        }
+
+    def summary_text(self, reports: list[CycleReport]) -> str:
+        summary = self.summarize_run(reports)
+        actions = ", ".join(
+            f"{action} x{count}" for action, count in summary["actions"].items()
+        )
+        return "\n".join(
+            [
+                "RUN SUMMARY:",
+                f"  Cycles: {summary['cycles']}",
+                (
+                    "  Attendance: "
+                    f"{summary['starting']['attendance']} -> "
+                    f"{summary['ending']['attendance']} "
+                    f"({summary['change']['attendance']:+})"
+                ),
+                (
+                    "  Felt safety: "
+                    f"{summary['starting']['felt_safety']} -> "
+                    f"{summary['ending']['felt_safety']} "
+                    f"({summary['change']['felt_safety']:+})"
+                ),
+                (
+                    "  Uncertainty: "
+                    f"{summary['starting']['uncertainty']} -> "
+                    f"{summary['ending']['uncertainty']} "
+                    f"({summary['change']['uncertainty']:+})"
+                ),
+                f"  Hunger pressure change: {summary['hunger_pressure_change']:+}",
+                f"  Prediction accuracy: {summary['prediction_accuracy']:.1%}",
+                f"  Protective progress cycles: {summary['protective_progress_cycles']}",
+                f"  Actions: {actions}",
+                f"  Next task: {summary['next_task']}",
+            ]
+        )
 
     def cycle_text(self, report: CycleReport) -> str:
         hypotheses = " / ".join(

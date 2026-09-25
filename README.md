@@ -178,6 +178,10 @@ Run the ESSA Haiti education case for seven days with:
 python3 -m examples.essa_haiti_education_case --days 7
 ```
 
+After the final cycle, ESSA prints a compact run summary showing changes in
+attendance, felt safety, uncertainty, and hunger pressure, plus the actions it
+tested and how often its predictions matched the observed direction.
+
 This case is grounded in a UN News article about children returning to school in
 Haiti under gang violence and displacement:
 

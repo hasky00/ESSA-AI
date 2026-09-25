@@ -70,6 +70,28 @@ class ESSAHaitiEducationCaseTests(unittest.TestCase):
         self.assertTrue(learner.output_forward_rules())
         self.assertTrue(any(belief.evidence_count for belief in learner.world_model))
 
+    def test_seven_day_summary_reports_measurable_change(self):
+        learner = ESSAHaitiEducationLearner()
+        reports = [learner.run_cycle() for _ in range(7)]
+
+        summary = learner.summarize_run(reports)
+
+        self.assertEqual(summary["cycles"], 7)
+        self.assertGreater(summary["change"]["attendance"], 0)
+        self.assertGreater(summary["change"]["felt_safety"], 0)
+        self.assertLess(summary["change"]["uncertainty"], 0)
+        self.assertLess(summary["hunger_pressure_change"], 0)
+        self.assertEqual(sum(summary["actions"].values()), 7)
+        self.assertGreaterEqual(summary["prediction_accuracy"], 0)
+        self.assertLessEqual(summary["prediction_accuracy"], 1)
+        self.assertTrue(summary["next_task"])
+
+    def test_summary_requires_at_least_one_cycle(self):
+        learner = ESSAHaitiEducationLearner()
+
+        with self.assertRaises(ValueError):
+            learner.summarize_run([])
+
     def test_safe_learning_space_can_buffer_blocked_school(self):
         environment = ESSAHaitiEducationEnvironment()
 
